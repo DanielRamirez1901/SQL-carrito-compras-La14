@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class UserOrdersHistoric {
 
     //Clase usada exclusivamente para almacenar al usuario y sus ordenes en toda la base de datos
-    
+
     Users user = new Users();
     ArrayList<OrderWithoutConditions> totalUserOrders= new ArrayList<>();
 

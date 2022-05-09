@@ -60,6 +60,28 @@ public class ProductsProvider {
         return output;
     }
 
+    //Metodo para la obtencion de todos los productos con todos sus parametros mas la cantidad(Solo para uso OrdenInformation)
+    public Products getAllProductsWithAmount(int idParam,int amount) throws SQLException {
+        Products products = new Products();
+        String sql = "SELECT * FROM products";
+        DbConnection connection =  new DbConnection();
+        connection.connect();
+        ResultSet resultSet =  connection.getDataBySQL(sql);
+
+        while(resultSet.next()){
+            int id = resultSet.getInt(resultSet.findColumn("id"));
+            String nombre = resultSet.getString(resultSet.findColumn("nombre"));
+            int precio = resultSet.getInt(resultSet.findColumn("precio"));
+
+            if(idParam == id){
+                products.setNombre(nombre);products.setId(id);products.setPrecio(precio);products.setCantidadProducto(amount);
+            }
+        }
+
+        connection.disconnect();
+        return products;
+    }
+
     //Metodo para la obtencion del precio de un unico producto
     public int getPrecioProducto(int productID) throws SQLException {
         int precioProducto=0;

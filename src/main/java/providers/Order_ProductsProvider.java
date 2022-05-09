@@ -2,6 +2,7 @@ package providers;
 
 import db.DbConnection;
 import model.Order;
+import model.OrderInformation;
 import model.Order_Products;
 import model.Products;
 
@@ -28,15 +29,41 @@ public class Order_ProductsProvider {
         connection.connection(sql);
     }
 
-    //Metodo encargado de actualizar la tabla para obtener el precio total de la orden o cuenta
-    public void addProductsInOrder(Order_Products order_products) throws SQLException {
+
+    //Metodo que elimina la cantidad de un producto que se encuentre en la orden en cuestion (id)
+    public void addProductsByID(int id, int cantidadAñadidaProducto) throws SQLException{
         String sql = ("UPDATE orders_products SET cantidadProducto= $CANTIDADPRODUCTO,precioTotalProducto=$PRECIOTOTALPRODUCTO WHERE id=$ID");
-        sql = sql.replace("$ID",""+order_products.getId());
-        sql = sql.replace("$CANTIDADPRODUCTO",""+order_products.getCantidadProducto());
-        order_products.setProductID(getIdProducto(order_products.getId()));
-        int precioProducto = provider.getPrecioProducto(order_products.getProductID());
-        order_products.setPrecioTotalProducto(precioProducto * order_products.getCantidadProducto());
-        sql = sql.replace("$PRECIOTOTALPRODUCTO",""+order_products.getPrecioTotalProducto());
+        Order_Products order_product = getOrderProduct(id);
+        //System.out.println("id: "+order_product.getId()+" cantidadP: "+order_product.getCantidadProducto()+" idPro: "+order_product.getProductID());
+        int cantidadProductoInOrder = order_product.getCantidadProducto();
+        int cantidadResultante = cantidadProductoInOrder + cantidadAñadidaProducto;
+        order_product.setCantidadProducto(cantidadResultante);
+        sql = sql.replace("$ID",""+order_product.getId());
+        sql = sql.replace("$CANTIDADPRODUCTO",""+order_product.getCantidadProducto());
+        int precioProducto = provider.getPrecioProducto(order_product.getProductID());
+        order_product.setPrecioTotalProducto(precioProducto * order_product.getCantidadProducto());
+        sql = sql.replace("$PRECIOTOTALPRODUCTO",""+order_product.getPrecioTotalProducto());
+        connection.connection(sql);
+    }
+
+
+    //Metodo que elimina la cantidad de un producto que se encuentre en la orden en cuestion (id)
+    public void deleteProductsByID(int id, int cantidadEliminadaProducto) throws SQLException{
+        String sql = ("UPDATE orders_products SET cantidadProducto= $CANTIDADPRODUCTO,precioTotalProducto=$PRECIOTOTALPRODUCTO WHERE id=$ID");
+        Order_Products order_product = getOrderProduct(id);
+        System.out.println("id: "+order_product.getId()+" cantidadP: "+order_product.getCantidadProducto()+" idPro: "+order_product.getProductID());
+        int cantidadProductoInOrder = order_product.getCantidadProducto();
+        int cantidadResultante = cantidadProductoInOrder - cantidadEliminadaProducto;
+        if(cantidadResultante<0){//Validar que no se quiera eliminar mas de lo que se tiene
+            order_product.setCantidadProducto(0);
+        }else{
+            order_product.setCantidadProducto(cantidadResultante);
+        }
+        sql = sql.replace("$ID",""+order_product.getId());
+        sql = sql.replace("$CANTIDADPRODUCTO",""+order_product.getCantidadProducto());
+        int precioProducto = provider.getPrecioProducto(order_product.getProductID());
+        order_product.setPrecioTotalProducto(precioProducto * order_product.getCantidadProducto());
+        sql = sql.replace("$PRECIOTOTALPRODUCTO",""+order_product.getPrecioTotalProducto());
         connection.connection(sql);
     }
 
@@ -102,27 +129,40 @@ public class Order_ProductsProvider {
         return order_product;
     }
 
-    //Metodo que elimina la cantidad de un producto que se encuentre en la orden en cuestion (id)
-    public void deleteProductsByID(int id, int cantidadEliminadaProducto) throws SQLException{
-        String sql = ("UPDATE orders_products SET cantidadProducto= $CANTIDADPRODUCTO,precioTotalProducto=$PRECIOTOTALPRODUCTO WHERE id=$ID");
-        Order_Products order_product = getOrderProduct(id);
-        System.out.println("id: "+order_product.getId()+" cantidadP: "+order_product.getCantidadProducto()+" idPro: "+order_product.getProductID());
-        int cantidadProductoInOrder = order_product.getCantidadProducto();
-        int cantidadResultante = cantidadProductoInOrder - cantidadEliminadaProducto;
-        if(cantidadResultante<0){//Validar que no se quiera eliminar mas de lo que se tiene
-            order_product.setCantidadProducto(0);
-        }else{
-            order_product.setCantidadProducto(cantidadResultante);
+
+    //Metodo para obtener mediante el id de la orde, el precio total de la orde, los productos totales y la info del producto en cuestion
+    public OrderInformation getOrderByID(int idParam) throws SQLException {
+
+        int totalPrice=0;
+        int totalProducts=0;
+        String sql = "SELECT * FROM orders_products";
+        OrderInformation orderInformation = new OrderInformation();
+        ProductsProvider productsProvider = new ProductsProvider();
+        Products products;
+        DbConnection connection =  new DbConnection();
+        connection.connect();
+        ResultSet resultSet =  connection.getDataBySQL(sql);
+        while(resultSet.next()){
+            int id = resultSet.getInt(resultSet.findColumn("id"));
+            int orderID = resultSet.getInt(resultSet.findColumn("orderID"));
+            int productID = resultSet.getInt(resultSet.findColumn("productID"));
+            int cantidadProducto = resultSet.getInt(resultSet.findColumn("cantidadProducto"));
+            int precioTotalProducto = resultSet.getInt(resultSet.findColumn("precioTotalProducto"));
+            if (orderID == idParam) {
+                orderInformation.setOrderID(orderID);
+                totalPrice = precioTotalProducto + totalPrice;
+                totalProducts = cantidadProducto + totalProducts;
+                products = productsProvider.getAllProductsWithAmount(productID,cantidadProducto);
+                if(products.getCantidadProducto()>0){
+                    orderInformation.addProduct(products);
+                }
+                orderInformation.setPrecioTotalEnOrden(totalPrice);
+                orderInformation.setTotalProductos(totalProducts);
+            }
         }
-        sql = sql.replace("$ID",""+order_product.getId());
-        sql = sql.replace("$CANTIDADPRODUCTO",""+order_product.getCantidadProducto());
-        int precioProducto = provider.getPrecioProducto(order_product.getProductID());
-        order_product.setPrecioTotalProducto(precioProducto * order_product.getCantidadProducto());
-        sql = sql.replace("$PRECIOTOTALPRODUCTO",""+order_product.getPrecioTotalProducto());
-        connection.connection(sql);
+        connection.disconnect();
+        return orderInformation;
     }
-
-
 
 
 }

@@ -1,6 +1,7 @@
 package services;
 
 import model.Order;
+import model.OrderInformation;
 import model.Order_Products;
 import providers.OrderProvider;
 import providers.Order_ProductsProvider;
@@ -8,6 +9,7 @@ import providers.Order_ProductsProvider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 @Path("orders_products")
 public class Order_ProductsServices {
@@ -35,14 +37,13 @@ public class Order_ProductsServices {
     }
 
     @PUT
-    @Path("addProduct")
-    @Consumes("application/json")
-    public Response updateTotalPrice(Order_Products orderProducts) {
+    @Path("addProduct/{id}/{cantidadProducto}")
+    public Response addProduct(@PathParam("id") int id, @PathParam("cantidadProducto") int cantidadProducto){
         try {
+            System.out.println("id: "+id+" cantidad: "+cantidadProducto);
             Order_ProductsProvider provider = new Order_ProductsProvider();
-            System.out.println("In services: "+orderProducts.getProductID());
-            provider.addProductsInOrder(orderProducts);
-            return responsesServices.successfully();
+            provider.addProductsByID(id,cantidadProducto);
+            return  responsesServices.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
             return responsesServices.unsuccessfully();
@@ -50,8 +51,8 @@ public class Order_ProductsServices {
     }
 
     @DELETE
-    @Path("delete/{id}/{cantidadProducto}")
-    public Response delete(@PathParam("id") int id, @PathParam("cantidadProducto") int cantidadProducto){
+    @Path("deleteProduct/{id}/{cantidadProducto}")
+    public Response deleteProduct(@PathParam("id") int id, @PathParam("cantidadProducto") int cantidadProducto){
         try {
             System.out.println("id: "+id+" cantidad: "+cantidadProducto);
             Order_ProductsProvider provider = new Order_ProductsProvider();
@@ -63,10 +64,25 @@ public class Order_ProductsServices {
         }
     }
 
+    @GET
+    @Path("allByID/{id}")
+    public Response getByOrderID(@PathParam("id") int id){
+        try {
+            Order_ProductsProvider order_productsProvider = new Order_ProductsProvider();
+            OrderInformation orderInformation = order_productsProvider.getOrderByID(id);
+            return Response
+                    .ok(orderInformation)
+                    .header("Content-Type","application/json")
+                    .build();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            return responsesServices.unsuccessfully();
+        }
+
+    }
+
 
     /*
-    Falta metodo actualizar algun objeto de orders_products(*)
-    Falta metodo para ver historico ordenes usuario por cedula(*)
-    Falta metodo permite ver informacion de una orden por ID(**)
+        Crear clase con arrayList de usuarios, orderWithout y productos asociados (*)
      */
 }
