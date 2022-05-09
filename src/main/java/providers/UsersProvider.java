@@ -66,6 +66,29 @@ public class UsersProvider {
         return output;
     }
 
+    //Metodo para buscar a un usuario por su cedula
+    public Users getAnUsers(String cedulaU) throws SQLException {
+        System.out.println(cedulaU);
+        Users user = new Users();
+        String sql = "SELECT * FROM users";
+        DbConnection connection =  new DbConnection();
+        connection.connect();
+        ResultSet resultSet =  connection.getDataBySQL(sql);
 
+        while(resultSet.next()){
+            int id = resultSet.getInt(resultSet.findColumn("id"));
+            String nombre = resultSet.getString(resultSet.findColumn("nombre"));
+            int edad = resultSet.getInt(resultSet.findColumn("edad"));
+            String cedula = resultSet.getString(resultSet.findColumn("cedula"));
+            String correo = resultSet.getString(resultSet.findColumn("correo"));
+            if(cedula.equals(cedulaU)){
+                user.setId(id);user.setNombre(nombre);user.setEdad(edad);user.setCedula(cedula);user.setCorreo(correo);
+            }
+
+        }
+
+        connection.disconnect();
+        return user;
+    }
 
 }

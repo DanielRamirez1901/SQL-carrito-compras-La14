@@ -54,7 +54,6 @@ public class Order {
         return fechaCreacion;
     }
     public void setFechaCreacion(String fechaCreacion) {this.fechaCreacion = fechaCreacion;}
-
     public String getOrdenNoPagada() {
         ordenPagada = "NO HA SIDO PAGADA";
         return ordenPagada;
@@ -74,4 +73,6 @@ public class Order {
     public int getPrecioTotalCuenta() {return precioTotalCuenta;}
 
     public void setPrecioTotalCuenta(int precioTotalCuenta) {this.precioTotalCuenta = precioTotalCuenta;}
+
+
 }

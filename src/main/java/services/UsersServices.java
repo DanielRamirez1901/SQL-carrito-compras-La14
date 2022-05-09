@@ -1,7 +1,10 @@
 package services;
 
 import model.Message;
+import model.Order;
+import model.UserOrdersHistoric;
 import model.Users;
+import providers.OrderProvider;
 import providers.ProductsProvider;
 import providers.UsersProvider;
 
@@ -51,6 +54,29 @@ public class UsersServices {
         }
 
     }
+
+    @GET
+    @Path("userHistory/{cedula}")
+    public Response getUserHistory(@PathParam("cedula") String cedula){
+        try {
+            UsersProvider userprovider = new UsersProvider();
+            OrderProvider orderProvider = new OrderProvider();
+            Users user = userprovider.getAnUsers(cedula);
+            UserOrdersHistoric userHistory = new UserOrdersHistoric();
+            userHistory.setUser(user);
+            userHistory.setTotalUserOrders(orderProvider.getUserOrders(user.getId()));
+            //Crear metodo que a partir de la cedula, busque al usuario y lo asigne a userToPrint
+            //Crear metodo que a partir del id de ese usuario, forme una orden de oders y asigne a addOrderToUser
+            return Response
+                    .ok(userHistory)
+                    .header("Content-Type","application/json")
+                    .build();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            return responsesServices.unsuccessfully();
+        }
+    }
+
 
     @PUT
     @Path("update")

@@ -61,7 +61,7 @@ public class ProductsProvider {
     }
 
     //Metodo para la obtencion del precio de un unico producto
-    public int getProduct(int productID) throws SQLException {
+    public int getPrecioProducto(int productID) throws SQLException {
         int precioProducto=0;
         boolean finishProcess = false;
         String sql = "SELECT * FROM products";

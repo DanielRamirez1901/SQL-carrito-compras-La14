@@ -2,6 +2,7 @@ package providers;
 
 import db.DbConnection;
 import model.Order;
+import model.OrderWithoutConditions;
 
 
 import java.sql.ResultSet;
@@ -86,6 +87,40 @@ public class OrderProvider {
 
             Order order = new Order(id,fechaCreacion,ordenPagada,fechaPago,userID,precioTotalCuenta);
             output.add(order);
+        }
+
+        connection.disconnect();
+        return output;
+    }
+
+    //Metodo para obtener ordenes relacionadas con el usuario en cuestion
+    public ArrayList<OrderWithoutConditions> getUserOrders(int userOrder) throws SQLException {
+
+        ArrayList<OrderWithoutConditions> output = new ArrayList<>();
+        OrderWithoutConditions order;
+
+        String sql = "SELECT * FROM orders";
+        DbConnection connection =  new DbConnection();
+        connection.connect();
+        ResultSet resultSet =  connection.getDataBySQL(sql);
+
+        while(resultSet.next()){
+            int id = resultSet.getInt(resultSet.findColumn("id"));
+            String fechaCreacion = resultSet.getString(resultSet.findColumn("fechaCreacion"));
+            String ordenPagada = resultSet.getString(resultSet.findColumn("ordenPagada"));
+            String fechaPago = resultSet.getString(resultSet.findColumn("fechaPago"));
+            int userID = resultSet.getInt(resultSet.findColumn("userID"));
+            int precioTotalCuenta = resultSet.getInt(resultSet.findColumn("precioTotalCuenta"));
+
+            if(userID==userOrder) {
+                System.out.println(id+fechaCreacion+ordenPagada+fechaPago+userID+precioTotalCuenta);
+                /*
+                order.setId(id);order.setFechaCreacion(fechaCreacion);order.setOrdenPagada(ordenPagada);
+                order.setFechaPago(fechaPago);order.setUserID(userID);order.setPrecioTotalCuenta(precioTotalCuenta);
+                 */
+                order = new OrderWithoutConditions(id,fechaCreacion,ordenPagada,fechaPago,userID,precioTotalCuenta);
+                output.add(order);
+            }
         }
 
         connection.disconnect();

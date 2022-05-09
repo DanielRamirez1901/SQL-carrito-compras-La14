@@ -49,9 +49,22 @@ public class Order_ProductsServices {
         }
     }
 
+    @DELETE
+    @Path("delete/{id}/{cantidadProducto}")
+    public Response delete(@PathParam("id") int id, @PathParam("cantidadProducto") int cantidadProducto){
+        try {
+            System.out.println("id: "+id+" cantidad: "+cantidadProducto);
+            Order_ProductsProvider provider = new Order_ProductsProvider();
+            provider.deleteProductsByID(id,cantidadProducto);
+            return  responsesServices.successfully();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            return responsesServices.unsuccessfully();
+        }
+    }
+
 
     /*
-    Falta medoto eliminar un producto de orders_products(*)
     Falta metodo actualizar algun objeto de orders_products(*)
     Falta metodo para ver historico ordenes usuario por cedula(*)
     Falta metodo permite ver informacion de una orden por ID(**)
