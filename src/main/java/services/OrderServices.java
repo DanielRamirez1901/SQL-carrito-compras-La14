@@ -1,21 +1,16 @@
 package services;
 
-import model.Products;
 import model.Order;
-import model.Users;
 import providers.OrderProvider;
-import providers.ProductsProvider;
-import providers.UsersProvider;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 @Path("orders")
 public class OrderServices {
 
-    ResponsesServices responsesServices = new ResponsesServices();
+    Response response = new Response();
 
     @GET
     @Path("echo")
@@ -26,99 +21,80 @@ public class OrderServices {
     @POST
     @Path("create")
     @Consumes("application/json")
-    public Response create(Order order){
+    public javax.ws.rs.core.Response create(Order order){
         try {
             OrderProvider provider = new OrderProvider();
             provider.create(order);
-            return responsesServices.successfully();
+            return response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.successfully();
+            return response.successfully();
         }
     }
 
     @PUT
     @Path("updateOrderUser")
     @Consumes("application/json")
-    public Response updateOrderUser(Order order) {
+    public javax.ws.rs.core.Response updateOrderUser(Order order) {
         try {
             OrderProvider provider = new OrderProvider();
             provider.updateUserID(order);
-            return responsesServices.successfully();
+            return response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
     }
 
     @PUT
-    @Path("updatePaidState")
+    @Path("updatePaidState/{id}/{mode}")
     @Consumes("application/json")
-    public Response updatePaidState(Order order) {
+    public javax.ws.rs.core.Response updatePaidState(@PathParam("id") int id, @PathParam("mode") int mode) {
         try {
             OrderProvider provider = new OrderProvider();
-            provider.updateStateOfOrderPaid(order);
-            return responsesServices.successfully();
+            Order order = provider.getAnOrder(id);
+            if(mode == 1){
+                //Con 1 se actualiza a cuenta pagada
+                provider.updateStateOfOrderPaid(order);
+                provider.updateTotalPrice(order);//Actualizo de paso el precio total
+            }else if(mode == 2){
+                //Con 2 se actualiza a cuenta no pagada
+                provider.updateStateOfOrderUnpaid(order);
+                provider.updateTotalPrice(order);//Actualizo de paso el precio total
+            }
+            return response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
-        }
-    }
-
-    @PUT
-    @Path("updateUnpaidState")
-    @Consumes("application/json")
-    public Response updateUnpaidState(Order order) {
-        try {
-            OrderProvider provider = new OrderProvider();
-            provider.updateStateOfOrderUnpaid(order);
-            return responsesServices.successfully();
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-            return responsesServices.unsuccessfully();
-        }
-    }
-
-    @PUT
-    @Path("updateTotalPrice")
-    @Consumes("application/json")
-    public Response updateTotalPrice(Order order) {
-        try {
-            OrderProvider provider = new OrderProvider();
-            provider.updateTotalPrice(order);
-            return responsesServices.successfully();
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
     }
 
     @DELETE
     @Path("delete/{id}")
-    public Response delete(@PathParam("id") int id){
+    public javax.ws.rs.core.Response delete(@PathParam("id") int id){
         try {
             OrderProvider provider = new OrderProvider();
             provider.deleteById(id);
-            return  responsesServices.successfully();
+            return  response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
     }
 
     @GET
     @Path("all")
-    public Response getAll(){
+    public javax.ws.rs.core.Response getAll(){
         try {
             OrderProvider provider = new OrderProvider();
             ArrayList<Order> orders = provider.getAllOrders();
-            return Response
+            return javax.ws.rs.core.Response
                     .ok(orders)
                     .header("Content-Type","application/json")
                     .build();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
 
     }

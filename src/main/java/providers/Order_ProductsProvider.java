@@ -1,14 +1,12 @@
 package providers;
 
 import db.DbConnection;
-import model.Order;
 import model.OrderInformation;
 import model.Order_Products;
 import model.Products;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class Order_ProductsProvider {
 
@@ -32,23 +30,25 @@ public class Order_ProductsProvider {
 
     //Metodo que elimina la cantidad de un producto que se encuentre en la orden en cuestion (id)
     public void addProductsByID(int id, int cantidadAñadidaProducto) throws SQLException{
+        OrderProvider op = new OrderProvider();
         String sql = ("UPDATE orders_products SET cantidadProducto= $CANTIDADPRODUCTO,precioTotalProducto=$PRECIOTOTALPRODUCTO WHERE id=$ID");
         Order_Products order_product = getOrderProduct(id);
-        //System.out.println("id: "+order_product.getId()+" cantidadP: "+order_product.getCantidadProducto()+" idPro: "+order_product.getProductID());
         int cantidadProductoInOrder = order_product.getCantidadProducto();
         int cantidadResultante = cantidadProductoInOrder + cantidadAñadidaProducto;
         order_product.setCantidadProducto(cantidadResultante);
         sql = sql.replace("$ID",""+order_product.getId());
         sql = sql.replace("$CANTIDADPRODUCTO",""+order_product.getCantidadProducto());
         int precioProducto = provider.getPrecioProducto(order_product.getProductID());
-        order_product.setPrecioTotalProducto(precioProducto * order_product.getCantidadProducto());
+        order_product.setPrecioTotalProducto(precioProducto * cantidadResultante);
         sql = sql.replace("$PRECIOTOTALPRODUCTO",""+order_product.getPrecioTotalProducto());
         connection.connection(sql);
+        op.updateTotalPrice(op.getAnOrder(order_product.getOrderID()));//Se actualiza el precio total en orden
     }
 
 
     //Metodo que elimina la cantidad de un producto que se encuentre en la orden en cuestion (id)
     public void deleteProductsByID(int id, int cantidadEliminadaProducto) throws SQLException{
+        OrderProvider op = new OrderProvider();
         String sql = ("UPDATE orders_products SET cantidadProducto= $CANTIDADPRODUCTO,precioTotalProducto=$PRECIOTOTALPRODUCTO WHERE id=$ID");
         Order_Products order_product = getOrderProduct(id);
         System.out.println("id: "+order_product.getId()+" cantidadP: "+order_product.getCantidadProducto()+" idPro: "+order_product.getProductID());
@@ -65,6 +65,7 @@ public class Order_ProductsProvider {
         order_product.setPrecioTotalProducto(precioProducto * order_product.getCantidadProducto());
         sql = sql.replace("$PRECIOTOTALPRODUCTO",""+order_product.getPrecioTotalProducto());
         connection.connection(sql);
+        op.updateTotalPrice(op.getAnOrder(order_product.getOrderID()));//Se actualiza el precio total en orden
     }
 
     //Metodo para la obtencion del precio total de productos que se encuentra en la tabla orders_products
@@ -121,6 +122,7 @@ public class Order_ProductsProvider {
             int cantidadProducto = resultSet.getInt(resultSet.findColumn("cantidadProducto"));
             int precioTotalProducto = resultSet.getInt(resultSet.findColumn("precioTotalProducto"));
             if (id == idParam) {
+                System.out.println("Aqui iegue");
                 order_product.setId(id);order_product.setOrderID(orderID);order_product.setProductID(productID);
                 order_product.setCantidadProducto(cantidadProducto);order_product.setPrecioTotalProducto(precioTotalProducto);
             }

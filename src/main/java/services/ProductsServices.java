@@ -1,20 +1,16 @@
 package services;
 
-import model.Message;
 import model.Products;
-import model.Users;
 import providers.ProductsProvider;
-import providers.UsersProvider;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 @Path("products")
 public class ProductsServices {
 
-    ResponsesServices responsesServices = new ResponsesServices();
+    Response response = new Response();
 
     @GET
     @Path("echo")
@@ -25,31 +21,31 @@ public class ProductsServices {
     @POST
     @Path("create")
     @Consumes("application/json")
-    public Response create(Products product){
+    public javax.ws.rs.core.Response create(Products product){
         try {
             ProductsProvider provider = new ProductsProvider();
             provider.create(product);
-            return responsesServices.successfully();
+            return response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.successfully();
+            return response.successfully();
         }
     }
 
 
     @GET
     @Path("all")
-    public Response getAll(){
+    public javax.ws.rs.core.Response getAll(){
         try {
             ProductsProvider provider = new ProductsProvider();
             ArrayList<Products> products = provider.getAllProducts();
-            return Response
+            return javax.ws.rs.core.Response
                     .ok(products)
                     .header("Content-Type","application/json")
                     .build();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
 
     }
@@ -57,27 +53,27 @@ public class ProductsServices {
     @PUT
     @Path("update")
     @Consumes("application/json")
-    public Response update(Products product) {
+    public javax.ws.rs.core.Response update(Products product) {
         try {
             ProductsProvider provider = new ProductsProvider();
             provider.update(product);
-            return responsesServices.successfully();
+            return response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
     }
 
     @DELETE
     @Path("delete/{id}")
-    public Response delete(@PathParam("id") int id){
+    public javax.ws.rs.core.Response delete(@PathParam("id") int id){
         try {
             ProductsProvider provider = new ProductsProvider();
             provider.deleteById(id);
-            return  responsesServices.successfully();
+            return  response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
     }
 

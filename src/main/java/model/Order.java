@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import static java.lang.System.out;
 
@@ -39,29 +40,22 @@ public class Order {
 
     //***********Setters&Getters********************
 
-    public String getFechaPagoInicial(){
-        fechaPago="-";
-        return fechaPago;
+
+    public String getFechaPago() {return fechaPago;}
+    public void setFechaPago(String condition) {
+        if(condition.startsWith("S")){
+            fechaPago  = String.valueOf(fecha);
+        }
+        fechaPago ="-";
     }
-    public String getFechaPago() {
-        fechaPago = String.valueOf(fecha);
-        return fechaPago;
-    }
-    public void setFechaPago(String fechaPago) {this.fechaPago = fechaPago;}
 
     public String getFechaCreacion() {
         fechaCreacion = String.valueOf(fecha);
         return fechaCreacion;
     }
     public void setFechaCreacion(String fechaCreacion) {this.fechaCreacion = fechaCreacion;}
-    public String getOrdenNoPagada() {
-        ordenPagada = "NO HA SIDO PAGADA";
-        return ordenPagada;
-    }
-    public String getOrdenSiPagada() {
-        ordenPagada = "SI HA SIDO PAGADA";
-        return ordenPagada;
-    }
+
+    public String getOrdenPagada() {return ordenPagada;}
     public void setOrdenPagada(String ordenPagada) {this.ordenPagada = ordenPagada;}
 
     public int getId() {return id;}

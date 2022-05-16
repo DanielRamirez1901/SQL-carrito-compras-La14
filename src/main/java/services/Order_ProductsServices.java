@@ -1,20 +1,16 @@
 package services;
 
-import model.Order;
 import model.OrderInformation;
 import model.Order_Products;
-import providers.OrderProvider;
 import providers.Order_ProductsProvider;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 @Path("orders_products")
 public class Order_ProductsServices {
 
-    ResponsesServices responsesServices = new ResponsesServices();
+    Response response = new Response();
 
     @GET
     @Path("echo")
@@ -25,58 +21,56 @@ public class Order_ProductsServices {
     @POST
     @Path("create")
     @Consumes("application/json")
-    public Response create(Order_Products order_products){
+    public javax.ws.rs.core.Response create(Order_Products order_products){
         try {
             Order_ProductsProvider provider = new Order_ProductsProvider();
             provider.create(order_products);
-            return responsesServices.successfully();
+            return response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.successfully();
+            return response.successfully();
         }
     }
 
     @PUT
     @Path("addProduct/{id}/{cantidadProducto}")
-    public Response addProduct(@PathParam("id") int id, @PathParam("cantidadProducto") int cantidadProducto){
+    public javax.ws.rs.core.Response addProduct(@PathParam("id") int id, @PathParam("cantidadProducto") int cantidadProducto){
         try {
-            System.out.println("id: "+id+" cantidad: "+cantidadProducto);
             Order_ProductsProvider provider = new Order_ProductsProvider();
             provider.addProductsByID(id,cantidadProducto);
-            return  responsesServices.successfully();
+            return  response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
     }
 
     @DELETE
     @Path("deleteProduct/{id}/{cantidadProducto}")
-    public Response deleteProduct(@PathParam("id") int id, @PathParam("cantidadProducto") int cantidadProducto){
+    public javax.ws.rs.core.Response deleteProduct(@PathParam("id") int id, @PathParam("cantidadProducto") int cantidadProducto){
         try {
-            System.out.println("id: "+id+" cantidad: "+cantidadProducto);
             Order_ProductsProvider provider = new Order_ProductsProvider();
             provider.deleteProductsByID(id,cantidadProducto);
-            return  responsesServices.successfully();
+            return  response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
     }
 
     @GET
     @Path("allByID/{id}")
-    public Response getByOrderID(@PathParam("id") int id){
+    public javax.ws.rs.core.Response getByOrderID(@PathParam("id") int id){
         try {
             Order_ProductsProvider order_productsProvider = new Order_ProductsProvider();
             OrderInformation orderInformation = order_productsProvider.getOrderByID(id);
-            return Response
+            return javax.ws.rs.core.Response
                     .ok(orderInformation)
                     .header("Content-Type","application/json")
                     .build();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
 
     }

@@ -20,8 +20,10 @@ public class OrderProvider {
         String sql = ("INSERT INTO orders(fechaCreacion,ordenPagada,fechaPago,userID) VALUES ('$FECHACREACION','$ORDENPAGADA','$FECHAPAGO',$USERID)");
                 sql = sql.replace("$USERID",""+order.getUserID());
                 sql = sql.replace("$FECHACREACION",order.getFechaCreacion());
-                sql = sql.replace("$FECHAPAGO",order.getFechaPagoInicial());
-                sql = sql.replace("$ORDENPAGADA",order.getOrdenNoPagada());
+                order.setFechaPago("N");
+                sql = sql.replace("$FECHAPAGO",order.getFechaPago());
+                order.setOrdenPagada("NO HA SIDO PAGADA");
+                sql = sql.replace("$ORDENPAGADA",order.getOrdenPagada());
                 connection.connection(sql);
     }
 
@@ -37,7 +39,9 @@ public class OrderProvider {
     public void updateStateOfOrderPaid(Order order) throws SQLException {
         String sql = ("UPDATE orders SET ordenPagada='$ORDENPAGADA', fechaPago='$FECHAPAGO' WHERE id=$ID");
                 sql = sql.replace("$ID",""+order.getId());
-                sql = sql.replace("$ORDENPAGADA",""+order.getOrdenSiPagada());
+                order.setOrdenPagada("SI HA SIDO PAGADA");
+                order.setFechaPago("Si");
+                sql = sql.replace("$ORDENPAGADA",""+order.getOrdenPagada());
                 sql = sql.replace("$FECHAPAGO",order.getFechaPago());
         connection.connection(sql);
     }
@@ -46,8 +50,10 @@ public class OrderProvider {
     public void updateStateOfOrderUnpaid(Order order) throws SQLException {
         String sql = ("UPDATE orders SET ordenPagada='$ORDENPAGADA', fechaPago='$FECHAPAGO' WHERE id=$ID");
         sql = sql.replace("$ID",""+order.getId());
-        sql = sql.replace("$ORDENPAGADA",""+order.getOrdenNoPagada());
-        sql = sql.replace("$FECHAPAGO",order.getFechaPagoInicial());
+        order.setOrdenPagada("NO HA SIDO PAGADA");
+        order.setFechaPago("No");
+        sql = sql.replace("$ORDENPAGADA",""+order.getOrdenPagada());
+        sql = sql.replace("$FECHAPAGO",order.getFechaPago());
         connection.connection(sql);
     }
 
@@ -67,6 +73,8 @@ public class OrderProvider {
         String sql = "DELETE FROM orders WHERE id="+id;
         connection.connection(sql);
     }
+
+
 
     //Metodo para la obtencion de todos las ordenes con todos sus parametros
     public ArrayList<Order> getAllOrders() throws SQLException {
@@ -92,6 +100,33 @@ public class OrderProvider {
         connection.disconnect();
         return output;
     }
+
+    //Metodo para la obtencion de una sola orden en base al ID
+    public Order getAnOrder(int idParam) throws SQLException {
+
+        Order order = new Order();
+        String sql = "SELECT * FROM orders";
+        DbConnection connection =  new DbConnection();
+        connection.connect();
+        ResultSet resultSet =  connection.getDataBySQL(sql);
+
+        while(resultSet.next()){
+            int id = resultSet.getInt(resultSet.findColumn("id"));
+            String fechaCreacion = resultSet.getString(resultSet.findColumn("fechaCreacion"));
+            String ordenPagada = resultSet.getString(resultSet.findColumn("ordenPagada"));
+            String fechaPago = resultSet.getString(resultSet.findColumn("fechaPago"));
+            int userID = resultSet.getInt(resultSet.findColumn("userID"));
+            int precioTotalCuenta = resultSet.getInt(resultSet.findColumn("precioTotalCuenta"));
+
+            if(idParam == id){
+                order.setId(id);order.setFechaCreacion(fechaCreacion);order.setOrdenPagada(ordenPagada);
+                order.setFechaPago(fechaPago);order.setUserID(userID);order.setPrecioTotalCuenta(precioTotalCuenta);
+            }
+        }
+
+        connection.disconnect();
+        return order;
+    }//Modificar fecha
 
     //Metodo para obtener ordenes relacionadas con el usuario en cuestion
     public ArrayList<OrderWithoutConditions> getUserOrders(int userOrder) throws SQLException {

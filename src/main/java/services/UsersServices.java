@@ -1,21 +1,17 @@
 package services;
 
-import model.Message;
-import model.Order;
 import model.UserOrdersHistoric;
 import model.Users;
 import providers.OrderProvider;
-import providers.ProductsProvider;
 import providers.UsersProvider;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 @Path("users")
 public class UsersServices {
-    ResponsesServices responsesServices = new ResponsesServices();
+    Response response = new Response();
 
     @GET
     @Path("echo")
@@ -26,38 +22,38 @@ public class UsersServices {
     @POST
     @Path("create")
     @Consumes("application/json")
-    public Response create(Users user){
+    public javax.ws.rs.core.Response create(Users user){
         try {
             UsersProvider provider = new UsersProvider();
             provider.create(user);
-            return responsesServices.successfully();
+            return response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return  responsesServices.successfully();
+            return  response.successfully();
         }
     }
 
 
     @GET
     @Path("all")
-    public Response getAll(){
+    public javax.ws.rs.core.Response getAll(){
         try {
             UsersProvider provider = new UsersProvider();
             ArrayList<Users> users = provider.getAllUsers();
-            return Response
+            return javax.ws.rs.core.Response
                     .ok(users)
                     .header("Content-Type","application/json")
                     .build();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
 
     }
 
     @GET
     @Path("userHistory/{cedula}")
-    public Response getUserHistory(@PathParam("cedula") String cedula){
+    public javax.ws.rs.core.Response getUserHistory(@PathParam("cedula") String cedula){
         try {
             UsersProvider userprovider = new UsersProvider();
             OrderProvider orderProvider = new OrderProvider();
@@ -67,13 +63,13 @@ public class UsersServices {
             userHistory.setTotalUserOrders(orderProvider.getUserOrders(user.getId()));
             //Crear metodo que a partir de la cedula, busque al usuario y lo asigne a userToPrint
             //Crear metodo que a partir del id de ese usuario, forme una orden de oders y asigne a addOrderToUser
-            return Response
+            return javax.ws.rs.core.Response
                     .ok(userHistory)
                     .header("Content-Type","application/json")
                     .build();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
     }
 
@@ -81,27 +77,27 @@ public class UsersServices {
     @PUT
     @Path("update")
     @Consumes("application/json")
-    public Response update(Users user) {
+    public javax.ws.rs.core.Response update(Users user) {
         try {
             UsersProvider provider = new UsersProvider();
             provider.update(user);
-            return responsesServices.successfully();
+            return response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
     }
 
     @DELETE
     @Path("delete/{id}")
-    public Response delete(@PathParam("id") int id){
+    public javax.ws.rs.core.Response delete(@PathParam("id") int id){
         try {
             UsersProvider provider = new UsersProvider();
             provider.deleteById(id);
-            return  responsesServices.successfully();
+            return  response.successfully();
         } catch (SQLException exception) {
             exception.printStackTrace();
-            return responsesServices.unsuccessfully();
+            return response.unsuccessfully();
         }
     }
 
